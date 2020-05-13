@@ -6,6 +6,7 @@
 @section('content')
     <hr>
     <p>本文のcontent</p>
+    <a href="{{ route('student.create') }}">生徒新規追加</a>
     <p>bladeの中身</p>
     <p>このページには{{ $students->count() }}件表示中</p>
     <table border="1" width="500" cellspacing="0" bordercolor="#333333">

@@ -4,11 +4,14 @@
 @endcomponent
 
 <body>
+@component('layouts.alert');
+@endcomponent
+
 @component('layouts.header')
     @slot('selectItem','student')
 @endcomponent
 
-<main>
+<main style="margin-left: 50px;">
     <p>master layout</p>
     @yield('content')
 </main>
