@@ -15,7 +15,7 @@
             <th bgcolor="#b0c4de" width="150">名前</th>
             <th bgcolor="#b0c4de" width="200">年齢</th>
             <th bgcolor="#b0c4de" width="200">作成日</th>
-            <th bgcolor="#b0c4de" width="200">更新日</th>
+            <th bgcolor="#b0c4de" width="200">更新日</th>        
         </tr>
         @foreach($students as $student)
             <tr>
@@ -24,6 +24,11 @@
                 <td>{{ $student->age }}</td>
                 <td>{{ $student->created_at }}</td>
                 <td>{{ $student->updated_at }}</td>
+                <td>
+                    <form method="post" action="{{ route('student.edit',$student->id) }}">
+                        <button type="submit" class="btn btn-info">編集</button>
+                    </form>
+                </td>
             </tr>
         @endforeach
         <!-- 結果の残りページ -->

@@ -18,7 +18,7 @@ Route::get('/student/{id}/edit', 'StudentController@edit')->name('student.edit')
 Route::put('/student/{id}', 'StudentController@update')->name('student.update');
 Route::delete('/student/{id}', 'StudentController@destory')->name('student.destory');
 
-// Route::resource('/student', 'StudentController');
+//  Route::resource('/student', 'StudentController');
 
 
 
