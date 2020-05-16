@@ -9,11 +9,11 @@
 
         <div class="form-group">
             <label >名前</label>
-            <input type="name" name="name" class="form-control">
+            <input type="name" name="name" class="form-control" value="{{ old('name') }}">
         </div>
         <div class="form-group">
             <label for="exampleFormControlInput1">年齢</label>
-            <input type="number" name="age" class="form-control" id="exampleFormControlInput1">
+            <input type="number" name="age" class="form-control" id="exampleFormControlInput1" value="{{ old('age') }}">
         </div>
         <button type="submit" class="btn btn-primary">送信</button>
 
