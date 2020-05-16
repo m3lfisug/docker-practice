@@ -15,7 +15,10 @@
             <th bgcolor="#b0c4de" width="150">名前</th>
             <th bgcolor="#b0c4de" width="200">年齢</th>
             <th bgcolor="#b0c4de" width="200">作成日</th>
-            <th bgcolor="#b0c4de" width="200">更新日</th>        
+            <th bgcolor="#b0c4de" width="200">更新日</th>
+            <th bgcolor="#b0c4de" width="200">削除日</th>
+            <th bgcolor="#b0c4de" width="200">削除</th>        
+            <th bgcolor="#b0c4de" width="200">編集</th>        
         </tr>
         @foreach($students as $student)
             <tr>
@@ -24,6 +27,14 @@
                 <td>{{ $student->age }}</td>
                 <td>{{ $student->created_at }}</td>
                 <td>{{ $student->updated_at }}</td>
+                <td>{{ $student->deleted_at }}</td>
+                <td>
+                    <form method="post" action="{{ route('student.destroy',$student->id) }}">
+                        @method('DELETE')
+                        @csrf
+                        <button type="submit" class="btn btn-danger">削除</button>
+                    </form>
+                </td>
                 <td>
                     <form method="post" action="{{ route('student.edit',$student->id) }}">
                         <button type="submit" class="btn btn-info">編集</button>

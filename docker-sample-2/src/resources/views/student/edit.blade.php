@@ -5,7 +5,7 @@
 @section('content')
 
 @section('content')
-    <form method="post" action="{{ route('student.update' }}">
+    <form method="post" action="{{ route('student.update',student->id) }}">
         @method('PUT')
         @csrf
 

@@ -25,9 +25,9 @@ class StudentController extends Controller
         if(empty($request->get('keyword'))) {
             $query = $query->where('name','like','%'.$request->get('keyword').'%');
         }
-        if(!empty($request->get('deleted_view'))) {
-            $query = $query->whereNull('deleted_at');
-        }
+        // if(!empty($request->get('deleted_view'))) {
+        //     $query = $query->whereNull('deleted_at');
+        // }
         $students = Student::query()->paginate(40);
 
         return view('student.index',[
@@ -188,6 +188,24 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
-        
+        Log::debug('StudentController@destroy');
+
+        try {
+            $now = date("Y-m-d H:i:s");
+            $query = Student::query();
+            $query = $query->where('id', '=' ,$id);
+            $student = $query->first();
+
+            $student->deleted_at = $now;
+            $student->save();
+            Log::info('student deleted user id :' .$student->id);
+            return redirect()->route('student.index')->with('success',$student->name .'を削除しました。');
+        } catch (\Exception $exception) {
+            Log::error($exception->getMessage());
+            return back()
+                ->withErrors(['システムエラー'])
+                ->withInput();
+        }
+
     }
 }
