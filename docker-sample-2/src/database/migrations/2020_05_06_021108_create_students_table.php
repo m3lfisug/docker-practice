@@ -22,6 +22,7 @@ class CreateStudentsTable extends Migration
             $table->timestamps();
             // $table->timestamp('created_at')
             // $table->timestamp('update_at')
+            $table->softDeletes();
         });
     }
 

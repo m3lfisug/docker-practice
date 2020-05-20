@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use Facade\Ignition\QueryRecorder\Query;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class StudentController extends Controller
 {
@@ -12,14 +15,23 @@ class StudentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
+        Log::debug('StudentController@index');
+
         echo 'コントローラー';
-        
-        $students = Student::query()->paginate(5);
+
+        $query = Student::query();
+        if(empty($request->get('keyword'))) {
+            $query = $query->where('name','like','%'.$request->get('keyword').'%');
+        }
+        // if(!empty($request->get('deleted_view'))) {
+        //     $query = $query->whereNull('deleted_at');
+        // }
+        $students = Student::query()->paginate(40);
 
         return view('student.index',[
-            'students'=> $students
+            'students' => $students
         ]);
     
 
@@ -34,7 +46,7 @@ class StudentController extends Controller
      */
     public function create()
     {
-        //
+        Log::debug('StudentController@create');
         return view('student.create');
     }
 
@@ -46,13 +58,40 @@ class StudentController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        $student = new Student();
-        $student->name = $request->get('name');
-        $student->age = $request->get('age');
-        $student->save();
-        return redirect()->route('student.index');
-//        return redirect()->route('student.index')->with('successes', ['生徒を追加しました。']);
+        // 入力条件（入力必須|型|文字数）
+        $validationRules = [
+            'name' => 'required|string|max:10',
+            'age' => 'required|integer|digits_between:1,3',
+        ];
+        // 入力不十分の時に出る文言
+        $validationMessages = [
+            'name.required' => '名前を入力してください',
+            'name.max' => '名前は10文字以下で入力してください',
+            'age.*' => '年齢は3桁以内で必ず入力してください'
+        ];
+        // $request->validate($validationRules,$validationMessages);
+
+        $validator = Validator::make($request->all(),$validationRules,$validationMessages);
+        if (!$validator->passes()) { //passes trueかfalseを返す
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            $student = new Student();
+            $student->name = $request->get('name');
+            $student->age = $request->get('age');
+            $student->save();
+            Log::info('student created user id : ' . $student->id);
+            // with sessionに格納、一度表示したら消える
+            return redirect()->route('student.index')->with('success',$student->name . 'を追加しました');
+        } catch (\Exception $exception) {
+            Log::error($exception->getMessage());
+            return back()
+                ->withErrors(['システムエラー'])
+                ->withInput();
+        }
     }
 
     /**
@@ -63,7 +102,15 @@ class StudentController extends Controller
      */
     public function show($id)
     {
-        //
+        Log::debug('StudentController@show');
+
+        $query = Student::query();
+        $query = $query->where('id', '=', $id);
+        $student = $query->first();
+
+        return view('student.show',[
+            'student' => $student
+        ]);
     }
 
     /**
@@ -74,7 +121,15 @@ class StudentController extends Controller
      */
     public function edit($id)
     {
-        //
+        Log::debug('StudentController@edit');
+
+        $query = Student::query();
+        $query = $query->where('id', '=', $id);
+        $student = $query->first();
+
+        return view('student.edit',[
+            'student' => $student
+        ]);
     }
 
     /**
@@ -86,7 +141,43 @@ class StudentController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        Log::debug('StudentController@update');
+
+        $validationRules = [
+            'name' => 'required|string|max:10',
+            'age' => 'required|integer|digits_between:1,3'
+        ];
+        $validationMessages = [
+            'name.required' => '名前を入力してください',
+            'name.max' => '名前は10文字以下で入力してください',
+            'age.*' => '年齢は3桁以内で必ず入力してください'
+        ];
+        
+        // $request->validate($validationRules,$validationMessages);
+        $validator = Validator::make($request->all(),$validationRules,$validationMessages);
+        if (!$validator->passes()) {
+            return back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        try {
+            $query = Student::query();
+            $query = $query->where('id', '=', $id);
+            $student = $query->first();
+
+            $student->name = $request->get('name');
+            $student->age = $request->get('age');
+            $student->save();
+
+            Log::info('student updated user id :' . $student->id);
+            return redirect()->route('student.index')->with('success',$student->name . 'を更新しました。');
+        } catch(\Exception $exception) {
+            Log::error($exception->getMessage());
+            return back()
+                ->withErrors(['システムエラー'])
+                ->withInput();
+        }
     }
 
     /**
@@ -97,6 +188,24 @@ class StudentController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Log::debug('StudentController@destroy');
+
+        try {
+            $now = date("Y-m-d H:i:s");
+            $query = Student::query();
+            $query = $query->where('id', '=' ,$id);
+            $student = $query->first();
+
+            $student->deleted_at = $now;
+            $student->save();
+            Log::info('student deleted user id :' .$student->id);
+            return redirect()->route('student.index')->with('success',$student->name .'を削除しました。');
+        } catch (\Exception $exception) {
+            Log::error($exception->getMessage());
+            return back()
+                ->withErrors(['システムエラー'])
+                ->withInput();
+        }
+
     }
 }
